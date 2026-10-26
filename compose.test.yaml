@@ -12,7 +12,7 @@ services:
           uv_version="$$(uv --version | cut -d' ' -f2)"
           python_version="$$(python3 --version 2>&1 | cut -d' ' -f2)"
           pandoc_version="$$(pandoc --version | head -n 1 | cut -d' ' -f2)"
-          pypandoc_info="$$(uv run --no-project --with pypandoc --python "$$(command -v python3)" python -c 'import importlib.metadata, pypandoc; print(importlib.metadata.version("pypandoc")); print(pypandoc.get_pandoc_version())')"
+          pypandoc_info="$$(uv run --no-project --with pypandoc -- python -c 'import importlib.metadata, pypandoc; print(importlib.metadata.version("pypandoc")); print(pypandoc.get_pandoc_version())')"
           pypandoc_version="$$(printf '%s\n' "$$pypandoc_info" | sed -n '1p')"
           pypandoc_pandoc_version="$$(printf '%s\n' "$$pypandoc_info" | sed -n '2p')"
           test -n "$$alpine_version"

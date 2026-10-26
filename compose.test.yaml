@@ -4,29 +4,31 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-    entrypoint: ["/bin/sh", "-ec"]
-    command: |
-      alpine_version="$$(cat /etc/alpine-release)"
-      uv_version="$$(uv --version | cut -d' ' -f2)"
-      python_version="$$(python3 --version 2>&1 | cut -d' ' -f2)"
-      pandoc_version="$$(pandoc --version | head -n 1 | cut -d' ' -f2)"
-      pypandoc_info="$$(uv run --no-project --with pypandoc --python "$$(command -v python3)" python -c 'import importlib.metadata, pypandoc; print(importlib.metadata.version("pypandoc")); print(pypandoc.get_pandoc_version())')"
-      pypandoc_version="$$(printf '%s\n' "$$pypandoc_info" | sed -n '1p')"
-      pypandoc_pandoc_version="$$(printf '%s\n' "$$pypandoc_info" | sed -n '2p')"
-      test -n "$$alpine_version"
-      test -n "$$uv_version"
-      test -n "$$python_version"
-      test -n "$$pandoc_version"
-      test -n "$$pypandoc_version"
-      test -n "$$pypandoc_pandoc_version"
-      if [ "$$pandoc_version" != "$$pypandoc_pandoc_version" ]; then
-        echo "Pandoc CLI version ($$pandoc_version) differs from pypandoc's Pandoc version ($$pypandoc_pandoc_version)." >&2
-        exit 1
-      fi
-      printf '| Component | Version |\n|---|---|\n'
-      printf '| Alpine Linux | %s |\n' "$$alpine_version"
-      printf '| uv | %s |\n' "$$uv_version"
-      printf '| Python | %s |\n' "$$python_version"
-      printf '| Pandoc CLI | %s |\n' "$$pandoc_version"
-      printf '| pypandoc | %s |\n' "$$pypandoc_version"
-      printf '| Pandoc via pypandoc | %s |\n' "$$pypandoc_pandoc_version"
+    entrypoint: ["/bin/sh"]
+    command:
+      - -ec
+      - |
+          alpine_version="$$(cat /etc/alpine-release)"
+          uv_version="$$(uv --version | cut -d' ' -f2)"
+          python_version="$$(python3 --version 2>&1 | cut -d' ' -f2)"
+          pandoc_version="$$(pandoc --version | head -n 1 | cut -d' ' -f2)"
+          pypandoc_info="$$(uv run --no-project --with pypandoc --python "$$(command -v python3)" python -c 'import importlib.metadata, pypandoc; print(importlib.metadata.version("pypandoc")); print(pypandoc.get_pandoc_version())')"
+          pypandoc_version="$$(printf '%s\n' "$$pypandoc_info" | sed -n '1p')"
+          pypandoc_pandoc_version="$$(printf '%s\n' "$$pypandoc_info" | sed -n '2p')"
+          test -n "$$alpine_version"
+          test -n "$$uv_version"
+          test -n "$$python_version"
+          test -n "$$pandoc_version"
+          test -n "$$pypandoc_version"
+          test -n "$$pypandoc_pandoc_version"
+          if [ "$$pandoc_version" != "$$pypandoc_pandoc_version" ]; then
+            echo "Pandoc CLI version ($$pandoc_version) differs from pypandoc's Pandoc version ($$pypandoc_pandoc_version)." >&2
+            exit 1
+          fi
+          printf '| Component | Version |\n|---|---|\n'
+          printf '| Alpine Linux | %s |\n' "$$alpine_version"
+          printf '| uv | %s |\n' "$$uv_version"
+          printf '| Python | %s |\n' "$$python_version"
+          printf '| Pandoc CLI | %s |\n' "$$pandoc_version"
+          printf '| pypandoc | %s |\n' "$$pypandoc_version"
+          printf '| Pandoc via pypandoc | %s |\n' "$$pypandoc_pandoc_version"

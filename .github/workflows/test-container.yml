@@ -27,6 +27,8 @@ jobs:
         run: |
           set -euo pipefail
           docker compose -f compose.test.yaml run --rm version-check 2>&1 | tee versions.md
+          grep -Fq "| Alpine Linux |" versions.md
+          grep -Fq "| Pandoc via pypandoc |" versions.md
           cat versions.md >> "$GITHUB_STEP_SUMMARY"
       - name: Update version table in Readme.md
         run: |

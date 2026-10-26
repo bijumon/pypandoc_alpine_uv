@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   version-check:
@@ -21,6 +21,28 @@ jobs:
       - name: Show Docker Compose version
         run: docker compose version
       - name: Build image and test reported versions
+        shell: bash
         run: |
+          set -euo pipefail
           docker compose -f compose.test.yaml run --build --rm version-check | tee versions.md
           cat versions.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Update version table in Readme.md
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          readme = Path("Readme.md")
+          current = readme.read_text(encoding="utf-8")
+          first_line = current.splitlines()[0]
+          table = Path("versions.md").read_text(encoding="utf-8").strip()
+          readme.write_text(f"{first_line}\n\n{table}\n", encoding="utf-8")
+          PY
+      - name: Commit README version table when changed
+        run: |
+          if ! git diff --quiet -- Readme.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add Readme.md
+            git commit -m "docs: update container version table"
+            git push
+          fi

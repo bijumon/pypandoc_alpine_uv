@@ -20,11 +20,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Show Docker Compose version
         run: docker compose version
-      - name: Build image and test reported versions
+      - name: Build image
+        run: docker compose -f compose.test.yaml build version-check
+      - name: Run version check
         shell: bash
         run: |
           set -euo pipefail
-          docker compose -f compose.test.yaml run --build --rm version-check | tee versions.md
+          docker compose -f compose.test.yaml run --rm version-check 2>&1 | tee versions.md
           cat versions.md >> "$GITHUB_STEP_SUMMARY"
       - name: Update version table in Readme.md
         run: |
@@ -32,8 +34,7 @@ jobs:
           from pathlib import Path
 
           readme = Path("Readme.md")
-          current = readme.read_text(encoding="utf-8")
-          first_line = current.splitlines()[0]
+          first_line = readme.read_text(encoding="utf-8").splitlines()[0]
           table = Path("versions.md").read_text(encoding="utf-8").strip()
           readme.write_text(f"{first_line}\n\n{table}\n", encoding="utf-8")
           PY

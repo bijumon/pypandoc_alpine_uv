@@ -26,7 +26,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker compose -f compose.test.yaml run --rm version-check 2>&1 | tee versions.md
+          docker compose -f compose.test.yaml run --rm version-check 2>&1 | tee run.log
+          sed -n '/^| Component | Version |$/,$p' run.log > versions.md
           grep -Fq "| Alpine Linux |" versions.md
           grep -Fq "| Pandoc via pypandoc |" versions.md
           cat versions.md >> "$GITHUB_STEP_SUMMARY"
